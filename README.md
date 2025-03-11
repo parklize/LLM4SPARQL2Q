@@ -17,8 +17,10 @@ utils.py			# evaluation related utils
 
 # Example Usage
 Using ```Llama-2-7b-chat-hf``` with BASIC template:
-```python -m main --hub_id "meta-llama/Llama-2-7b-chat-hf" --template BASIC```
+
+```$ python -m main --hub_id "meta-llama/Llama-2-7b-chat-hf" --template BASIC```
 
 
 Using ```Meta-Llama-3-8B-Instruct``` with LLAMA3_BASIC template:
-```python -m main --hub_id "meta-llama/Meta-Llama-3-8B-Instruct" --template LLAMA3_BASIC```
+
+```$ python -m main --hub_id "meta-llama/Meta-Llama-3-8B-Instruct" --template LLAMA3_BASIC```
