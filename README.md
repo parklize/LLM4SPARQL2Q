@@ -4,15 +4,15 @@
 
 # Folder Structure
 ```python
-/data				# beastiary KG files
-/data_process		# data processing utils
-/results			# result folder
-hfpipeline.py		# HuggingFace pipeline
-main.py				# entry point 
-requirements.txt	# packages auto-dumped via ```pip freeze > requirements.txt```
-run.sh				# bash script to run experiments
-template.py			# prompt templates
-utils.py			# evaluation related utils
+/data		          # beastiary KG files
+/data_process		  # data processing utils
+/results                  # result folder
+hfpipeline.py		  # HuggingFace pipeline
+main.py                   # entry point 
+requirements.txt	  # packages auto-dumped via ```pip freeze > requirements.txt```
+run.sh	                  # bash script to run experiments
+template.py               # prompt templates
+utils.py                  # evaluation related utils
 ```
 
 # Example Usage
