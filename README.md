@@ -34,4 +34,4 @@ $ python -m main --hub_id "meta-llama/Meta-Llama-3-8B-Instruct" --template LLAMA
 ```
 
 # Citation
-Guangyuan Piao, Pournima Sonawane, Shraddha Gupta, and Aidan OMahony. "Exploring the Underlying Questions of SPARQL Queries with LLMs". ESWC'25 Poster [[BibTex](eswc25.bib)]
+Guangyuan Piao, Pournima Sonawane, Shraddha Gupta, and Aidan OMahony. "Exploring the Underlying Questions of SPARQL Queries with LLMs". ESWC'25 Poster [[PDF]](https://parklize.github.io/publications/ESWC2025.pdf) [[BibTex](eswc25.bib)]
