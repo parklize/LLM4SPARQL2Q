@@ -12,7 +12,7 @@ def eval(res_dict: dict):
     ''' Evaluate the generated questions with ground truth '''
     bertscore = BERTScore()
     res_bertscore = bertscore(
-        res_dict['generated'],
+        [x[0].lower()+x[1:] for x in res_dict['generated']],
         res_dict['ground_truth'],
     )
 
@@ -55,11 +55,11 @@ def eval_res(dir='results', model_name_or_path=None, recompute=False):
             
             if recompute:
                 res = bertscore(
-                    df['generated'].tolist(),
+                    [x[0].lower()+x[1:] for x in df['generated'].tolist()],
                     df['ground_truth'].tolist(),
                 )
-            for metric in ['f1', 'precision', 'recall']:
-                df[f'{metric}-BERTScore'] = res[metric].tolist()
+                for metric in ['f1', 'precision', 'recall']:
+                    df[f'{metric}-BERTScore'] = res[metric].tolist()
 
             print(f'{file} -- df shape: {df.shape} -- {df["f1-BERTScore"].mean()}')
 
@@ -67,82 +67,80 @@ def eval_res(dir='results', model_name_or_path=None, recompute=False):
                 df['context'] = False
             dataframes.append(df)
 
-            df['query_len'] = df['sparql'].str.split().str.len()
-            plt.figure(figsize=(6, 4))
-            plt.scatter(df['query_len'], df['f1-BERTScore'], color='blue', marker='o', alpha=0.7)
-            plt.xlabel('Query Length')
-            plt.ylabel('F1')
-            plt.title('Scatter Plot Example')
+            #df['query_len'] = df['sparql'].str.split().str.len()
+            #plt.figure(figsize=(6, 4))
+            #plt.scatter(df['query_len'], df['f1-BERTScore'], color='blue', marker='o', alpha=0.7)
+            #plt.xlabel('Query Length')
+            #plt.ylabel('F1')
+            #plt.title('Scatter Plot Example')
     
-            # Save plot to a file
-            plt.savefig(f'results/{file}_scatter_plot.png', dpi=300)
+            ## Save plot to a file
+            #plt.savefig(f'results/{file}_scatter_plot.png', dpi=300)
 
     combined_df = pd.concat(dataframes, ignore_index=True)
     combined_df = combined_df.reset_index(drop=True)
 
     #print(combined_df.shape)
     #print(combined_df.dtypes)
-    #print(combined_df.head())
+    print(combined_df.head())
+    combined_df.to_csv('./results/analysis/combined_results.csv', index=False)
     
     res = combined_df.groupby(
             ['hub_id', 'template']
     )[['precision-BERTScore', 'recall-BERTScore', 'f1-BERTScore']] \
     .agg(['mean'])
     
-    #print(res)
-    #print(res.to_latex(float_format="%.4f"))
+    print(res)
+    print(res.to_latex(float_format="%.4f"))
 
     
-    #pre = combined_df[ \
-    #    (combined_df['template'] == 'BASIC0') \
-    #    & (combined_df['hub_id'] == 'meta-llama/Llama-2-7b-chat-hf') \
-    #]['f1-BERTScore'].tolist()
+    pre = combined_df[ \
+        (combined_df['template'] == 'BASIC0') \
+        & (combined_df['hub_id'] == 'meta-llama/Llama-2-7b-chat-hf') \
+    ]['f1-BERTScore'].tolist()
 
-    #ttest(
-    #    combined_df, 
-    #    pre_template='BASIC0', 
-    #    post_templates=['BASIC1', 'BASIC3', 'BASIC5', 'CoT0'], 
-    #    hub_id='meta-llama/Llama-2-7b-chat-hf'
-    #)
-    #ttest(
-    #    combined_df, 
-    #    pre_template='LLAMA3_BASIC0', 
-    #    post_templates=['LLAMA3_'+x for x in ['BASIC0', 'BASIC1', 'BASIC3', 'BASIC5', 'CoT0']], 
-    #    hub_id='meta-llama/Meta-Llama-3-8B-Instruct'
-    #)
-    #ttest(
-    #    combined_df, 
-    #    pre_template='MISTRAL_BASIC0', 
-    #    post_templates=['MISTRAL_'+x for x in ['BASIC0', 'BASIC1', 'BASIC3', 'BASIC5', 'CoT0']], 
-    #    hub_id='mistralai/Mistral-7B-Instruct-v0.2'
-    #)
-    #ttest(
-    #    combined_df, 
-    #    pre_template='MISTRALFT_BASIC0', 
-    #    post_templates=['MISTRALFT_'+x for x in ['BASIC0', 'BASIC1', 'BASIC3', 'BASIC5', 'CoT0']], 
-    #    hub_id='mistralai/Mistral-7B-Instruct-v0.2'
-    #)
+    ttest(
+        combined_df, 
+        pre_template='BASIC0', 
+        post_templates=['BASIC1', 'BASIC3', 'BASIC5', 'CoT0'], 
+        hub_id='meta-llama/Llama-2-7b-chat-hf'
+    )
+    ttest(
+        combined_df, 
+        pre_template='LLAMA3_BASIC0', 
+        post_templates=['LLAMA3_'+x for x in ['BASIC0', 'BASIC1', 'BASIC3', 'BASIC5', 'CoT0']], 
+        hub_id='meta-llama/Meta-Llama-3-8B-Instruct'
+    )
+    ttest(
+        combined_df, 
+        pre_template='MISTRAL_BASIC0', 
+        post_templates=['MISTRAL_'+x for x in ['BASIC0', 'BASIC1', 'BASIC3', 'BASIC5', 'CoT0']], 
+        hub_id='mistralai/Mistral-7B-Instruct-v0.2'
+    )
+    ttest(
+        combined_df, 
+        pre_template='MISTRALFT_BASIC0', 
+        post_templates=['MISTRALFT_'+x for x in ['BASIC0', 'BASIC1', 'BASIC3', 'BASIC5', 'CoT0']], 
+        hub_id='mistralai/Mistral-7B-Instruct-v0.2'
+    )
+    # Test Fine tuned improvements
+    for pre_template in ['MISTRAL_'+x for x in ['BASIC0', 'BASIC1', 'BASIC3', 'BASIC5', 'CoT0']]: 
+        ttest(
+            combined_df, 
+            pre_template=pre_template, 
+            post_templates=['MISTRALFT_'+x for x in ['BASIC0', 'BASIC1', 'BASIC3', 'BASIC5', 'CoT0']], 
+            hub_id='mistralai/Mistral-7B-Instruct-v0.2'
+        )
 
-    print('Testing R1...')
-    for pre in ['LLAMA3_'+x for x in ['BASIC0', 'BASIC1', 'BASIC3', 'BASIC5',]]:
-        for post in ['R1_'+x for x in ['BASIC0', 'BASIC1', 'BASIC3', 'BASIC5',]]:
-            ttest(
-                combined_df,
-                pre_template=pre,
-                post_templates=[post],
-                hub_id='llama3.3-70B',
-                hub_id_post='R1'
-            )
-
-    combined_df['query_len'] = combined_df['sparql'].str.split().str.len()
-    plt.figure(figsize=(6, 4))
-    plt.scatter(combined_df['query_len'], combined_df['f1-BERTScore'], color='blue', marker='o', alpha=0.7)
-    plt.xlabel('Query Length')
-    plt.ylabel('F1')
-    plt.title('Scatter Plot Example')
-    
-    # Save plot to a file
-    plt.savefig('results/scatter_plot.png', dpi=300)
+    #combined_df['query_len'] = combined_df['sparql'].str.split().str.len()
+    #plt.figure(figsize=(6, 4))
+    #plt.scatter(combined_df['query_len'], combined_df['f1-BERTScore'], color='blue', marker='o', alpha=0.7)
+    #plt.xlabel('Query Length')
+    #plt.ylabel('F1')
+    #plt.title('Scatter Plot Example')
+    #
+    ## Save plot to a file
+    #plt.savefig('results/scatter_plot.png', dpi=300)
 
 def ttest(df: pd.DataFrame, pre_template: str, post_templates: list, hub_id: str, hub_id_post: str = None) -> None:
     """ Print ttest results 
@@ -167,7 +165,7 @@ def ttest(df: pd.DataFrame, pre_template: str, post_templates: list, hub_id: str
             & (df['hub_id'] == (hub_id_post if hub_id_post else hub_id)) \
         ]['f1-BERTScore'].tolist()
         print(len(pre), len(post))
-        print(pre_template, template, stats.ttest_rel(pre, post))
+        print(pre_template, template, stats.ttest_rel(pre, post, alternative='less'))
 
 
 def clean_output(res: str, template: str) -> str:
@@ -188,4 +186,4 @@ def clean_output(res: str, template: str) -> str:
 
 
 if __name__ == '__main__':
-    eval_res()
+    eval_res(recompute=True)
